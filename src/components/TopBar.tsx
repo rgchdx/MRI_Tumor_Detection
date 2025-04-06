@@ -1,5 +1,3 @@
-import React from "react";
-
 const TopBar = () => {
     return (
         <div className="fixed top-0 left-0 right-0 flex items-center justify-between bg-gray-800 p-4 text-white shadow-md">
