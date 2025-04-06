@@ -26,7 +26,7 @@ const Hero: React.FC = () => {
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => { //change this later on when implementing the ML model
     e.preventDefault();
     e.stopPropagation();
     setDragging(false);
@@ -44,7 +44,7 @@ const Hero: React.FC = () => {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         >
-        <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent animate-pulse">
+        <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-yellow-500 via-green-500 to-blue-500 bg-clip-text text-transparent animate-pulse">
             Welcome to MRI Bonanza
         </h1>
         <p className="mt-3 text-lg text-gray-300 hover:text-white transition duration-300">
@@ -60,7 +60,7 @@ const Hero: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.6 }}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDragOver={handleDragOver}
