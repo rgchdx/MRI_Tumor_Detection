@@ -3,27 +3,42 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
 import os
 import pickle
+from torchvision import transforms
+import torch
+from MRIClassifer import MRIClassifer
+import __main__
+
+__main__.MRIClassifer = MRIClassifer
+
+
+
+user_dir = os.getcwd()
+file = 'model.pkl'
+model_path = os.path.join(user_dir, file)
+
 
 # Load the picke file
-with open("model.pkl", "rb") as file:
-    model = pickle.load(file)
+with open(model_path, 'rb') as f:
+    model = pickle.load(f)
+# Close the file after loading
+f.close()
 
-# should we move this to a completely different file that would unpack the model???
-class MRIClassifier:
-    def __init__(self, model):
-        self.model = model
-    
-    ## change this so that it will generate what we need
-    def predict(self, image_path: str):
-        # Here you would typically process the image and make a prediction
-        # For simplicity, let's assume the model has a predict method
-        return self.model.predict(image_path)
-    
-    def __main__(self):
-        # This method could be used to test the model locally
-        pass
-
+# Initialize the FastAPI app
 app = FastAPI()
+
+# Initialize the MRIClassifier with the loaded model
+classifier = MRIClassifer(model)
+
+# Function to preprocess the image to match the model's input requirements
+def preprocess(image):
+    transform = transforms.Compose([
+        transforms.Resize((128, 128)),
+        transforms.PILToTensor(),
+    ])
+    return transform(image)
+
+# Set the device to CPU (if we are running on GPU then change this)
+device = torch.device('cpu')
 
 # Endpoint to serve the HTML page
 @app.get("/")
