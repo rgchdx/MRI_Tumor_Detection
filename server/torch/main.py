@@ -5,9 +5,10 @@ import os
 import pickle
 from torchvision import transforms
 import torch
-from torch import nn
-import timm
+from MRIClassifer import MRIClassifer
 import __main__
+
+__main__.MRIClassifer = MRIClassifer
 
 
 
@@ -15,30 +16,12 @@ user_dir = os.getcwd()
 file = 'model.pkl'
 model_path = os.path.join(user_dir, file)
 
-class MRIClassifer(nn.Module):
-    def __init__(self, num_classes=53):
-        super(MRIClassifer, self).__init__()
-        # Where we define all the parts of the model
-        self.base_model = timm.create_model('efficientnet_b0', pretrained=True)
-        self.features = nn.Sequential(*list(self.base_model.children())[:-1])
-
-        enet_out_size = 1280
-        # Make a classifier
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(enet_out_size, num_classes)
-        )
-    
-    def forward(self, x):
-        # Connect these parts and return the output
-        x = self.features(x)
-        output = self.classifier(x)
-        return output
 
 # Load the picke file
-model = MRIClassifer()  # Initialize model structure
-model.load_state_dict(torch.load(model_path, map_location='torch.device("cpu")'))
-model.eval()
+with open(model_path, 'rb') as f:
+    model = pickle.load(f)
+# Close the file after loading
+f.close()
 
 # Initialize the FastAPI app
 app = FastAPI()
