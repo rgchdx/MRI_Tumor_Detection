@@ -7,27 +7,27 @@ from torchvision import transforms
 import torch
 from MRIClassifer import MRIClassifer
 import __main__
+import torch.serialization
 
 __main__.MRIClassifer = MRIClassifer
 
 
 
-user_dir = os.getcwd()
-file = 'model.pkl'
-model_path = os.path.join(user_dir, file)
+#user_dir = os.getcwd()
+#file = 'model.pkl'
+#model_path = os.path.join(user_dir, file)
 
-
-# Load the picke file
-with open(model_path, 'rb') as f:
-    model = pickle.load(f)
-# Close the file after loading
-f.close()
+# torch.serialization.add_safe_globals([MRIClassifer])
+model = torch.load("model.pth", map_location="cpu", weights_only=False)
+print(type(model))
+print("Model loaded successfully")
+# Set the model to evaluation mode
+model.eval()
 
 # Initialize the FastAPI app
 app = FastAPI()
 
 # Initialize the MRIClassifier with the loaded model
-classifier = MRIClassifer(model)
 
 # Function to preprocess the image to match the model's input requirements
 def preprocess(image):
