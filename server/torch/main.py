@@ -31,12 +31,20 @@ app = FastAPI()
 # Initialize the MRIClassifier with the loaded model
 
 # Function to preprocess the image to match the model's input requirements
+#def preprocess(image):
+#    transform = transforms.Compose([
+#        transforms.Resize((128, 128)),
+#        transforms.PILToTensor(),
+#    ])
+#    return transform(image)
+
 def preprocess(image):
-    transform = transforms.Compose([
-        transforms.Resize((128, 128)),
-        transforms.PILToTensor(),
+    preprocess = transforms.Compose([
+        transforms.Resize((224, 224)),  # Resize to match the model input size
+        transforms.ToTensor(),           # Convert PIL Image to Tensor
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize
     ])
-    return transform(image)
+    return preprocess(image)
 
 # Set the device to CPU (if we are running on GPU then change this)
 device = torch.device('cpu')
@@ -60,14 +68,14 @@ async def predict(files: List[UploadFile] = File(...)):
     # save the uploaded file
     # Maybe change the file location to a more appropriate place
     #file_locaiton = f"../server/torch/{files[0].filename}"
-    file_location = f"server/torch/no_tumor_test1.png"
-    os.makedirs(os.path.dirname(file_location), exist_ok=True)
-    print(f"Saving file to {file_location}")
-    with open(file_location, "wb") as f:
-        f.write(await files[0].read())
-    image = Image.open(file_location).convert("RGB")
+    file_location = "/Users/rgdix/Desktop/MRI_Tumor_Detection/server/torch/test/has_tumor_test1.png"
+    try:
+        image = Image.open(file_location).convert("RGB")
+    except Exception as e:
+        return {"error": f"Failed to open image: {e}"}
+    print(f"Image opened: {image}")
     input_tensor = preprocess(image).unsqueeze(0).float()
-    print(f"Input tensor shape: {input_tensor.shape}")
+    print(f"Input tensor: {input_tensor}")
     with torch.no_grad():
         output = model(input_tensor)
     print(f"Output shape: {output.shape}")
