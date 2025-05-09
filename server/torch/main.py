@@ -9,6 +9,8 @@ from MRIClassifer import MRIClassifer
 import __main__
 import torch.serialization
 from PIL import Image
+from fastapi.middleware.cors import CORSMiddleware
+import io
 
 __main__.MRIClassifer = MRIClassifer
 
@@ -28,6 +30,14 @@ model.eval()
 # Initialize the FastAPI app
 app = FastAPI()
 
+# allowing CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 # Initialize the MRIClassifier with the loaded model
 
 # Function to preprocess the image to match the model's input requirements
@@ -39,6 +49,8 @@ app = FastAPI()
 #    return transform(image)
 
 def preprocess(image):
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
     preprocess = transforms.Compose([
         transforms.Resize((224, 224)),  # Resize to match the model input size
         transforms.ToTensor(),           # Convert PIL Image to Tensor
@@ -70,9 +82,9 @@ async def predict(file: UploadFile = File(...)):
     #file_locaiton = f"../server/torch/{files[0].filename}"
     # file_location = "/Users/rgdix/Desktop/MRI_Tumor_Detection/server/torch/test/has_tumor_test1.png"
     try:
-        contents = await file.read()
-        image = Image.open(contents).convert("RGB")
+        image = Image.open(io.BytesIO(await file.read()))
     except Exception as e:
+        # We are encountering this error currently.
         return {"error": f"Failed to open image: {e}"}
     print(f"Image opened: {image}")
     input_tensor = preprocess(image).unsqueeze(0).float()

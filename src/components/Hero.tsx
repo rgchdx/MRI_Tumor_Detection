@@ -11,6 +11,7 @@ const Hero: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragging(true);
+    console.log('Drag Enter');
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
