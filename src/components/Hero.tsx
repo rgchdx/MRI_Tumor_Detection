@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { CloudUpload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 const Hero: React.FC = () => {
   const [dragging, setDragging] = useState(false);
@@ -26,14 +27,34 @@ const Hero: React.FC = () => {
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => { //change this later on when implementing the ML model
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => { //change this later on when implementing the ML model
     e.preventDefault();
     e.stopPropagation();
     setDragging(false);
 
     const files = e.dataTransfer.files;
-    console.log('Dropped files:', files);
-    // Handle files here
+    if (files.length > 0) {
+      const file = files[0];
+      console.log('Dropped file:', file);
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/predict', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        if (response.status === 200) {
+          const prediction = response.data;
+          console.log('Prediction:', prediction);
+        } else {
+          console.error('Error:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
+
   };
 
   return (

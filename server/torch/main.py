@@ -59,18 +59,19 @@ async def root():
 # Might have to change so that we will take in the image from the frontend and then return the prediction results
 # For testing we have it set so that we have a test image in the server/torch directory might have to change the input later 
 @app.post("/predict")
-async def predict(files: List[UploadFile] = File(...)):
-    if not files:
+async def predict(file: UploadFile = File(...)):
+    if not file:
         return {"error": "No files uploaded"}
     # Check if the uploaded file is an image
-    if not files[0].filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+    if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
         return {"error": "File must be an image (png, jpg, jpeg)"}
     # save the uploaded file
     # Maybe change the file location to a more appropriate place
     #file_locaiton = f"../server/torch/{files[0].filename}"
-    file_location = "/Users/rgdix/Desktop/MRI_Tumor_Detection/server/torch/test/has_tumor_test1.png"
+    # file_location = "/Users/rgdix/Desktop/MRI_Tumor_Detection/server/torch/test/has_tumor_test1.png"
     try:
-        image = Image.open(file_location).convert("RGB")
+        contents = await file.read()
+        image = Image.open(contents).convert("RGB")
     except Exception as e:
         return {"error": f"Failed to open image: {e}"}
     print(f"Image opened: {image}")
